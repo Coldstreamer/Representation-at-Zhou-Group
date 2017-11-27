@@ -1,0 +1,187 @@
+\documentclass{beamer}
+\usepackage{mathrsfs}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usetheme{default}
+\usecolortheme{default}
+
+\title{Inductive Transfer for Bayesian Network Structure Learning}
+\author{Yutong Adam Li}
+\institute{Peking University}
+
+\begin{document}
+    \begin{frame}
+        \titlepage
+    \end{frame}
+
+\section{Introduction}
+    \begin{frame}
+        \frametitle{Intro.}
+        \begin{itemize}
+            \item Bayes Nets use a directed acyclic graph(DAG) to show the probability dependencies between variables.
+            \item It is possible to learn more accurate dependency graph by transferring information between problems.
+            \item This paper presents an algorithm for learning the Bayesian Network structure for Multiple problems simultaneously.
+        \end{itemize}
+    \end{frame}
+
+\section{Learning one Bayes Net from data}
+    \begin{frame}
+        \frametitle{Score of Bayes Nets}
+        \begin{itemize}
+            \item A Bayesian Network $B=\{G,\theta\}$ encodes the joint distribution of random variables $X_1,..,X_n$
+            \item G is a DAG and $\theta$ is a set of conditional probability function parameterized by $\theta$
+            \item Let data set be $D=\{x_1,...,x_n\}$
+                    $$P(G|D)\propto P(G)P(D|G)$$
+                  where $P(G)$ is prior,and $P(D|G)$ is marginal likelihood
+                    $$P(D|G)=\int P(D|G,\theta)P(\theta|G)d\theta$$
+        \end{itemize}
+    \end{frame}
+
+    \begin{frame}
+        \frametitle{Search for a high score network}
+        \begin{itemize}
+        \item Using heuristic search to find a network with a high score.(i.e. Greedy search)
+        \item The neighbor of G is often defined as the graph obtained by removing or reversing a arc, or adding a new arc.
+        \item These methods can be stuck in local minima when learning from related tasks.
+        \end{itemize}
+    \end{frame}
+\section{Learning from related tasks}
+    \begin{frame}
+        \frametitle{The posterior of a configuration}
+        \begin{itemize}
+           \item Given k data sets $D_1,...,D_k$, we want to simultaneously learn the structures of $\mathcal{B}_1=\{G_1,\theta_1\}$,..., $\mathcal{B}_k=\{G_k,\theta_k\}$
+            \item The posterior probability is $$P(G_1,...G_k|D_1,...,D_k)\propto P(G_1,...,G_k)P(D_1,...,D_k|G_1,...,G_k)$$
+            where
+            $$ P(D_1,...,D_k|G_1,...,G_k)=\int P(D_1,...,D_k|G_1,...,G_k,\theta_1,...,\theta_k)\times $$ $$ P(\theta_1,...,\theta_k|G_1,...,G_k)d\theta_1...d\theta_k$$
+         \end{itemize}
+    \end{frame}
+
+    \begin{frame}
+        \frametitle{The posterior of a configuration,cont.}
+        \begin{itemize}
+           \item If the data sets and parameters of different network is made to be independent, the posterior becomes
+            $$P(G_1,...G_k|D_1,...,D_k)\propto P(G_1,...,G_k)\prod_{p=1}^k P(D_p|G_p)$$
+            \item The independence of parameters can make the computation efficient, but prevents taking advantage of the similarity of parameters.
+         \end{itemize}
+    \end{frame}
+\subsection{Prior}
+    \begin{frame}
+        \frametitle{The prior}
+        \begin{itemize}
+           \item The prior can be seen as penalizing structures that deviate from each other.
+           \item The prior can be selected as
+            $$P(G_1,...,G_k)=Z_{\delta,k}\prod_{1\leq s\leq k}P(G_s)^{\frac{1}{1+(k-1)\delta}}\times$$
+            $$\prod_{1\leq s\leq t\leq k}(\prod_{(X_i,X_j)\in G_s\bigtriangleup G_t}(1-\delta))^{\frac{1}{k-1}}$$
+            where $Z_{\delta,k}$ is a normalization factor,and $G_s\bigtriangleup G_t$ represents the symmetric difference between the two edge sets.
+         \end{itemize}
+    \end{frame}
+\subsection{Greedy structure learning}
+    \begin{frame}
+        \frametitle{A Problem}
+        \begin{itemize}
+           \item Using the former definition of neighborhood, we will create lots of local minimas where we could easily stuck in.
+           \item In case where there is a strong belief that the structures should be similar, in this case it would be difficult to take steps in heuristic search since modifiying a single edge for a single DAG would make it  different frmo other DAGs, resulting in a low posterior probability.
+         \end{itemize}
+    \end{frame}
+
+    \begin{frame}
+        \frametitle{Solution to the problem}
+        \begin{itemize}
+        \item To fix the previous problem, a new definition is needed.
+        \item Define the neighborhood of a configuration to be  the set of all configurations obtained by selecting two nodes, and for each structure in the configuration, add, remove, reverse or remain unchange the arc between the nodes, while the structure remained is still a DAG.
+        \end{itemize}
+    \end{frame}
+\subsection{searching for the best configuration}
+    \begin{frame}
+        \frametitle{Efficiency}
+        \begin{itemize}
+           \item Given the definition of neighborhood, the size of a neighborhood is $O(n^23^k)$
+           \item The naive approach, computing the posterior of every configuration can be time-expensive.
+           \item Under these assumptions, however, it is possible to evaluate only a fraction in order to find the highest one.
+                \begin{itemize}
+                    \item The parameters of different tasks are mutually independent
+                             $$P(G_1,...G_k|D_1,...,D_k)\propto P(G_1,...,G_k)\prod_{p=1}^k P(D_p|G_p)$$
+                    \item The prior has the form
+                             $$P(G_1,...,G_k)=Z_{\delta,k}\prod_{1\leq s\leq k}P(G_s)^{\frac{1}{1+(k-1)\delta}}\times$$
+                             $$\prod_{1\leq s\leq t\leq k}(\prod_{(X_i,X_j)\in G_s\bigtriangleup G_t}(1-\delta))^{\frac{1}{k-1}}$$
+                \end{itemize}
+         \end{itemize}
+    \end{frame}
+
+    \begin{frame}
+        \frametitle{Partial Configuration}
+        \begin{itemize}
+        \item Let $\mathcal{C}=(G_1,...G_k)$ be the configuration, and $\mathcal{C}_l=(G_1,...G_l)$ be the partial configuration, where the first l tasks in $\mathcal{C}$ is $\mathcal{C}_l$
+        \item The score of a partial configuration is
+                $$S_{\mathcal{N}}(\mathcal{C}_l)=Z_{\delta,k}\prod_{1\leq s\leq t\leq l}(\prod_{(X_i,X_j)\in G_s\bigtriangleup G_t}(1-\delta))^{\frac{1}{k-1}}$$
+                $$\times\prod_{1\leq p\leq l}P(G_p)^{\frac{1}{1+(k-1)\delta}}P(D_p|G_p)\prod_{l+1\leq p \leq k}Best_q$$
+                where $Best_q=\max \{P(G_s)^{\frac{1}{1+(k-1)\delta}}P(D_p|G_p)\}$
+        \item The score of a partial configuration is an upper bound of the configuration,therefore configurations whose partial configuration score is lower than the current best one may not be explored.
+        \item In the author's experiments, they only need to evaluate about $2-4\%$ of the partial configurations.
+        \end{itemize}
+    \end{frame}
+
+    \begin{frame}
+        \frametitle{Precomputation}
+        \begin{itemize}
+        \item Since the posterior score of a configuration has the form
+                $$P(G_1,...G_k|D_1,...,D_k)\propto P(G_1,...,G_k)\prod_{p=1}^k P(D_p|G_p)$$
+                thus $P(D_i|G_i)$ can be reused.
+        \end{itemize}
+    \end{frame}
+\section{experimental results}
+    \begin{frame}
+        \frametitle{Datasets and Notations}
+        \begin{itemize}
+        %\item The author use ALARM and INSURANCE datasets.
+        \item ALARM and INSURANCE each has five related tasks with correlated parameters.
+        \item ALARM-IND and INSURANCE-IND each has five related tasks with similar srructures but independent parameters.
+        \item ALARM-COMP has five related tasks whose parts of the structures are shared but the rest are unrelated.
+        \item $P_{del}$ is the probability of varying arcs. The higher $P_{del}$ is, the less similar the structures are.
+        \end{itemize}
+    \end{frame}
+
+    \begin{frame}
+        \frametitle{Learning result}
+        \begin{figure}[H]
+        \centering
+        % Requires \usepackage{graphicx}
+        \includegraphics[width=0.9\textwidth]{2.jpg}\\
+        %\caption{}\label{}
+        \end{figure}
+    \end{frame}
+
+    \begin{frame}
+        \frametitle{Learning result,cont}
+        \begin{figure}[H]
+        \centering
+        % Requires \usepackage{graphicx}
+        \includegraphics[width=0.9\textwidth]{3.jpg}\\
+        %\caption{}\label{}
+        \end{figure}
+    \end{frame}
+
+    \begin{frame}
+        \frametitle{Comparison}
+        \begin{figure}[H]
+        \centering
+        % Requires \usepackage{graphicx}
+        \includegraphics[width=0.9\textwidth]{4.jpg}\\
+        %\caption{}\label{}
+        \end{figure}
+    \end{frame}
+
+    \begin{frame}
+        \frametitle{Comparison,cont.}
+        \begin{itemize}
+        \item This figure shows the learning results using MTL(Multitask Learning) and STL(Singletask learning) for ALARM-COMP
+            \begin{figure}[H]
+             \centering
+                % Requires \usepackage{graphicx}
+             \includegraphics[width=0.9\textwidth]{1.jpg}\\
+                \caption{The true structure and the learned structure for ALARM-COMP}
+             \end{figure}
+
+        \end{itemize}
+    \end{frame}
+\end{document}
