@@ -1,0 +1,174 @@
+\documentclass{beamer}
+\usepackage{mathrsfs}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usetheme{CambridgeUS}
+\usecolortheme{default}
+
+\title{The Graphical and Functional Approach}
+\author{Yutong Adam Li}
+\institute{Peking University}
+\date{\today}
+
+\begin{document}
+  \begin{frame}
+    \titlepage
+  \end{frame}
+\section{The Graphical Approach}
+\subsection{Conditional dependence and Bayesian network}
+  \begin{frame}
+    \frametitle{DAG and Bayesian Network}
+    \begin{itemize}
+        \item The core of the Bayesian network in a directed acyclic graph(DAG)$\mathcal{G}$.
+        \item{The meaning of $\mathcal{G}$
+        \begin{itemize}
+            \item The skeleton for a way of factorizing the joint distribution.
+                    $$P(X_1,...,X_d)=\prod_{j=1}^dP(X_i|Pa_{\mathcal{G}}X_i)$$
+            \item Represents a set of conditional independence assumptions.
+            \item Three types of d-separations
+                \begin{itemize}
+                \item a chain(causal trail);\item a fork(common cause);\item a collider(common effect)
+                \end{itemize}
+
+        \end{itemize}}
+    \end{itemize}
+  \end{frame}
+
+    \begin{frame}
+    \frametitle{DAG and Bayesian Network}
+    \begin{itemize}
+        \item Connection between the two meanings
+                    $$\mathcal{I}(P)=\{X  \mbox{\rotatebox{90}{$\models$}} Y|Z\}$$
+                    $$\mathcal{I}(\mathcal{G})=\{X  \mbox{\rotatebox{90}{$\models$}} Y|Z:\text{X and Y are d-separated by Z}\}$$
+        \item The formula
+                $$P(X_1,...,X_d)=\prod_{j=1}^dP(X_i|Pa_{\mathcal{G}}X_i)$$
+                is correct if
+                $$\mathcal{I}(P)=\mathcal{I}(\mathcal{G})$$
+    \end{itemize}
+  \end{frame}
+\subsection{Causal Bayesian network}
+    \begin{frame}
+    \frametitle{Three requirements of a good Bayesian Network}
+    \begin{itemize}
+        \item As sparse as possible
+        \item Natural
+        \item Robust to changes of variables
+    \end{itemize}
+  \end{frame}
+
+   \begin{frame}
+    \frametitle{Interventions}
+    \begin{itemize}
+        \item Represented by a subgraph that deletes all the arrows towards the intervention nodes.
+        \item Interventional distributions must be compatible with the original distribution.
+                $$P_{do(X=x)}(Y=y)=1\text{\quad if $Y\in X$ }$$
+                $$P_{do(X=x)}(Y=y)=1|pa_{\mathcal{G}}(Y)=z)=P(Y=y|pa_{\mathcal{G}}(Y)=z)$$
+                $$\text{if $pa_{\mathcal{G}}(Y)=z$ is consistent with X }$$
+    \end{itemize}
+  \end{frame}
+
+  \begin{frame}
+    \frametitle{Definition}
+    \begin{itemize}
+        \item A DAG $\mathcal{G}$ is said to be causal Bayesian network compatible with
+                P and its compatible interventional distributions if all $P_{do(X=x)}$ factorize over $\mathcal{G}$
+    \end{itemize}
+  \end{frame}
+\subsection{Graphical identification of causal effect}
+  \begin{frame}
+    \frametitle{Identification Problem}
+    \begin{itemize}
+        \item The Identification problem: do there exists two distribution $P$ and $P^\dag$ satisfies
+                $$P(V)=P^{\dag}(V)\text{\quad for all the variables V}$$
+                $$P_{do(T=t)}(Y)\neq P_{do(T=t)}^{\dag}(Y)$$
+        \item Pearl derived causal calculus,that based on the front-door and back-door criteria to determine the identifiability.
+    \end{itemize}
+  \end{frame}
+
+   \begin{frame}
+    \frametitle{Back-door Criterion}
+    \begin{itemize}
+        \item X blocks all the back-door trails of T to Y if
+            \begin{itemize}
+                \item No variable in X is a descendant of T
+                \item X blocks every undirected trail between T and Y that contains an arrow into T.
+            \end{itemize}
+        \item %\begin{align}
+                $$P_{do(T=t)}(Y) =\sum_x P(Y|T,X=x)P(X=x)
+                                = \sum_x \frac{P(X=x,T,Y)}{P(T|X=x)} $$
+                %\end{align}
+    \end{itemize}
+  \end{frame}
+
+  \begin{frame}
+    \frametitle{Front-door Criterion}
+    \begin{itemize}
+        \item X blocks the front-door trails of T to Y if
+            \begin{itemize}
+                \item Z blocks the direct path from T to Y
+                \item There is no back-door path from T to X
+                \item Any back-door path From T to Y is blocked by X
+            \end{itemize}
+        \item %\begin{align}
+                $$P_{do(T=t)}(Y) =\sum_x P(X|T=t)\sum_z P(Y|Z=z,X=x)P(Z)$$
+                %\end{align}
+    \end{itemize}
+  \end{frame}
+\section{The Functional Approach}
+\subsection{Laplacian determinism}
+  \begin{frame}
+    \frametitle{Laplacian determinism}
+    \begin{itemize}
+        \item The functional approach originates from Laplace's determinism
+        \item The future can be predicted using the law of dynamics, given the current status.
+    \end{itemize}
+  \end{frame}
+
+  \begin{frame}
+    \frametitle{SEM}
+     \begin{itemize}
+        \item Pearl's nonparametric structural equation model(SEM)
+                $$X=f_X(pa_{\mathcal{G}},\epsilon_X)$$
+        \item X is a function of its parents and noise.
+        \item Usually noise variables are assumed to be independent.
+    \end{itemize}
+  \end{frame}
+\subsection{Functional model and counterfactuals}
+    \begin{frame}
+    \frametitle{Counterfactuals}
+    \begin{itemize}
+        \item SEM can be used to represent counterfactuals.
+        \item Using the example in 2.2
+                $$T=f(X,\epsilon_T)\text{,\quad}Y=g(T,X,\epsilon_Y)$$
+                The counterfactual is
+                $$Y(0)=g(0,X,\epsilon_Y)$$
+                the "factual" is
+                $$Y(1)=g(1,X,\epsilon_Y)$$
+                both are well-defined random variables.
+    \end{itemize}
+  \end{frame}
+
+   \begin{frame}
+    \frametitle{Twin network}
+    \begin{itemize}
+        \item Twin network is developed to check conditional independence for counterfactual variables.
+        \item The original Graph and its counterfactuals are connected through common noise variables.
+        \item The conditional independence can be read from the twin network via d-separation
+    \end{itemize}
+  \end{frame}
+\section{Summary of the three approaches}
+   \begin{frame}
+    \frametitle{Three different approaches}
+    \begin{itemize}
+        \item Potential outcomes are designed to describe "effect of causes"
+        \item The functional approach handles large and complex causal networks best
+            \begin{itemize}
+                \item One can use statistic inference methods like MLE or Method of moments to solvethe equation.
+            \end{itemize}
+        \item The graphical approach is by far the clearest and the most concise way.
+            \begin{itemize}
+                \item The statistical inference of causal Bayesian network is not straightforward.
+            \end{itemize}
+    \end{itemize}
+  \end{frame}
+\end{document}
